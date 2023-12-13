@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <div id="input-container">
+            <input type="text" id="username" placeholder="Username">
+            <input type="text" id="message" placeholder="Message" onkeydown="handleKeyPress(event)">
+            <button id="sendBtn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                $('#sendBtn').click();
+            }
+        }
+
+        $(document).ready(function() {
+            var socket = io.connect("http://localhost:5000");
+            socket.on('connect',function(){
+                socket.send("User Connected");
+            });
+
+            socket.on('message',function(message){
+                $('#messages').append($('<p>').text(message));
+                $('#messages').scrollTop($('#messages')[0].scrollHeight);
+            });
+
+            $('#sendBtn').on('click',function(){
+                socket.send($('#username').val() + ': ' +  $('#message').val());
+                $('#message').val(''); 
+            });
+        });
+    </script>
+</body>
+</html>
